@@ -347,10 +347,11 @@ export default function TechOrbitSection() {
               rotateX,
               rotateY,
               transformStyle: "preserve-3d",
+              width: 760,
+              height: 520,
             }}
             className="relative"
             // fixed size container
-            style={{ width: 760, height: 520 }}
           >
             <div
               className="relative"

@@ -22,6 +22,7 @@ import {
   useRef,
   useState,
 } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    PARTICLE CANVAS
@@ -126,13 +127,13 @@ function ParticleField() {
 /* ─────────────────────────────────────────────────────────────────────────────
    3-D TILT CARD
 ───────────────────────────────────────────────────────────────────────────── */
-function TiltCard({
-  children,
-  className = "",
-}: {
-  children: React.ReactNode;
+interface TiltCardProps {
+  children: ReactNode;
   className?: string;
-}) {
+  style?: CSSProperties;
+}
+
+function TiltCard({ children, className = "", style }: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const rRX = useMotionValue(0);
@@ -175,12 +176,22 @@ function TiltCard({
     rGY.set(50);
   }, [rRX, rRY, rGX, rGY]);
 
+  const motionStyle: MotionStyle = {
+    rotateX: sRX,
+    rotateY: sRY,
+    transformStyle: "preserve-3d",
+  };
+
+  const combinedStyle: MotionStyle = style
+    ? { ...motionStyle, ...style }
+    : motionStyle;
+
   return (
     <motion.div
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      style={{ rotateX: sRX, rotateY: sRY, transformStyle: "preserve-3d" }}
+      style={combinedStyle}
       className={className}
     >
       {/* mouse-follow sheen */}
