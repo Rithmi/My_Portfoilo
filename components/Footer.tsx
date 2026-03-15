@@ -106,7 +106,7 @@ export default function Footer() {
           <div className="mt-10 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
           <div className="mt-6 flex flex-col gap-3 text-sm text-white/40 md:flex-row md:items-center md:justify-between">
-            <p>© 2025 Rithmi. All rights reserved.</p>
+            <p>© 2026 Rithmi. All rights reserved.</p>
             <p>Crafted with Next.js, Tailwind CSS, and Framer Motion.</p>
           </div>
         </motion.div>

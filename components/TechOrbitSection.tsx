@@ -1,43 +1,70 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useCallback, useRef, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    TECH DATA
 ───────────────────────────────────────────────────────────────────────────── */
 const TECH = [
-  // Inner ring
-  { name: "React",   icon: "⚛",  ring: 1, angle: 0,   accent: "#61dafb", glow: "rgba(97,218,251,0.55)"  },
-  { name: "Next.js", icon: "N",  ring: 1, angle: 51,  accent: "#ffffff", glow: "rgba(255,255,255,0.45)" },
-  { name: "TypeScript", icon: "TS", ring: 1, angle: 102, accent: "#3178c6", glow: "rgba(49,120,198,0.6)"  },
-  { name: "Node.js", icon: "⬡",  ring: 1, angle: 153, accent: "#68a063", glow: "rgba(104,160,99,0.55)"  },
-  { name: "Three.js",icon: "◈",  ring: 1, angle: 204, accent: "#a07bd4", glow: "rgba(160,123,212,0.6)"  },
-  { name: "Figma",   icon: "◰",  ring: 1, angle: 255, accent: "#f24e1e", glow: "rgba(242,78,30,0.5)"    },
-  { name: "Python",  icon: "Py", ring: 1, angle: 306, accent: "#3572a5", glow: "rgba(53,114,165,0.55)"  },
+  { name: "React", icon: "⚛", ring: 1, angle: 0, accent: "#61dafb", glow: "rgba(97,218,251,0.55)" },
+  { name: "Next.js", icon: "N", ring: 1, angle: 51, accent: "#ffffff", glow: "rgba(255,255,255,0.45)" },
+  { name: "TypeScript", icon: "TS", ring: 1, angle: 102, accent: "#3178c6", glow: "rgba(49,120,198,0.6)" },
+  { name: "Node.js", icon: "⬡", ring: 1, angle: 153, accent: "#68a063", glow: "rgba(104,160,99,0.55)" },
+  { name: "Three.js", icon: "◈", ring: 1, angle: 204, accent: "#a07bd4", glow: "rgba(160,123,212,0.6)" },
+  { name: "Figma", icon: "◰", ring: 1, angle: 255, accent: "#f24e1e", glow: "rgba(242,78,30,0.5)" },
+  { name: "Python", icon: "Py", ring: 1, angle: 306, accent: "#3572a5", glow: "rgba(53,114,165,0.55)" },
 
-  // Middle ring
-  { name: "CSS",     icon: "✦",  ring: 2, angle: 18,  accent: "#2965f1", glow: "rgba(41,101,241,0.5)"   },
-  { name: "HTML",    icon: "◬",  ring: 2, angle: 66,  accent: "#e44d26", glow: "rgba(228,77,38,0.5)"    },
-  { name: "Git",     icon: "⌥",  ring: 2, angle: 114, accent: "#f05032", glow: "rgba(240,80,50,0.5)"    },
-  { name: "MySQL",   icon: "⊛",  ring: 2, angle: 162, accent: "#00758f", glow: "rgba(0,117,143,0.5)"    },
-  { name: "PHP",     icon: "◍",  ring: 2, angle: 210, accent: "#8993be", glow: "rgba(137,147,190,0.5)"  },
-  { name: "WebGL",   icon: "✧",  ring: 2, angle: 258, accent: "#c084fc", glow: "rgba(192,132,252,0.55)" },
-  { name: "GSAP",    icon: "⌬",  ring: 2, angle: 306, accent: "#88ce02", glow: "rgba(136,206,2,0.5)"    },
-  { name: "Docker",  icon: "⊞",  ring: 2, angle: 354, accent: "#2496ed", glow: "rgba(36,150,237,0.5)"   },
+  { name: "CSS", icon: "✦", ring: 2, angle: 18, accent: "#2965f1", glow: "rgba(41,101,241,0.5)" },
+  { name: "HTML", icon: "◬", ring: 2, angle: 66, accent: "#e44d26", glow: "rgba(228,77,38,0.5)" },
+  { name: "Git", icon: "⌥", ring: 2, angle: 114, accent: "#f05032", glow: "rgba(240,80,50,0.5)" },
+  { name: "MySQL", icon: "⊛", ring: 2, angle: 162, accent: "#00758f", glow: "rgba(0,117,143,0.5)" },
+  { name: "PHP", icon: "◍", ring: 2, angle: 210, accent: "#8993be", glow: "rgba(137,147,190,0.5)" },
+  { name: "WebGL", icon: "✧", ring: 2, angle: 258, accent: "#c084fc", glow: "rgba(192,132,252,0.55)" },
+  { name: "GSAP", icon: "⌬", ring: 2, angle: 306, accent: "#88ce02", glow: "rgba(136,206,2,0.5)" },
+  { name: "Docker", icon: "⊞", ring: 2, angle: 354, accent: "#2496ed", glow: "rgba(36,150,237,0.5)" },
 
-  // Outer ring
-  { name: "C/C++",   icon: "©",  ring: 3, angle: 30,  accent: "#a8b9cc", glow: "rgba(168,185,204,0.45)" },
-  { name: "Tailwind",icon: "≋",  ring: 3, angle: 78,  accent: "#38bdf8", glow: "rgba(56,189,248,0.5)"   },
-  { name: "Framer",  icon: "◉",  ring: 3, angle: 126, accent: "#0055ff", glow: "rgba(0,85,255,0.5)"     },
-  { name: "Redux",   icon: "∇",  ring: 3, angle: 174, accent: "#764abc", glow: "rgba(118,74,188,0.5)"   },
-  { name: "Jest",    icon: "◎",  ring: 3, angle: 222, accent: "#c21325", glow: "rgba(194,19,37,0.5)"    },
-  { name: "Vercel",  icon: "▲",  ring: 3, angle: 270, accent: "#ffffff", glow: "rgba(255,255,255,0.4)"  },
-  { name: "AWS",     icon: "☁",  ring: 3, angle: 318, accent: "#ff9900", glow: "rgba(255,153,0,0.5)"    },
-];
+  { name: "C/C++", icon: "©", ring: 3, angle: 30, accent: "#a8b9cc", glow: "rgba(168,185,204,0.45)" },
+  { name: "Tailwind", icon: "≋", ring: 3, angle: 78, accent: "#38bdf8", glow: "rgba(56,189,248,0.5)" },
+  { name: "Framer", icon: "◉", ring: 3, angle: 126, accent: "#0055ff", glow: "rgba(0,85,255,0.5)" },
+  { name: "Redux", icon: "∇", ring: 3, angle: 174, accent: "#764abc", glow: "rgba(118,74,188,0.5)" },
+  { name: "Jest", icon: "◎", ring: 3, angle: 222, accent: "#c21325", glow: "rgba(194,19,37,0.5)" },
+  { name: "Vercel", icon: "▲", ring: 3, angle: 270, accent: "#ffffff", glow: "rgba(255,255,255,0.4)" },
+  { name: "AWS", icon: "☁", ring: 3, angle: 318, accent: "#ff9900", glow: "rgba(255,153,0,0.5)" },
+] as const;
 
-const RING_RADII = [0, 155, 240, 330]; // index 0 unused
-const RING_SPEEDS = [0, 28, 42, 58];   // seconds per rotation
+const RING_RADII = [0, 155, 240, 330];
+const RING_SPEEDS = [0, 28, 42, 58];
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────────────────────────────────────────── */
+function round(n: number, places = 3) {
+  return Number(n.toFixed(places));
+}
+
+function getNodeSize(ring: number) {
+  if (ring === 1) return 52;
+  if (ring === 2) return 44;
+  return 38;
+}
+
+function getFontSize(ring: number) {
+  if (ring === 1) return 13;
+  if (ring === 2) return 11;
+  return 10;
+}
+
+function getOrbitPosition(angleDeg: number, ringAngleDeg: number, radius: number) {
+  const base = (angleDeg * Math.PI) / 180;
+  const live = (ringAngleDeg * Math.PI) / 180;
+  const total = base + live;
+
+  const x = round(Math.cos(total) * radius);
+  const y = round(Math.sin(total) * radius * 0.38);
+
+  return { x, y };
+}
 
 /* ─────────────────────────────────────────────────────────────────────────────
    PARTICLE BACKGROUND
@@ -51,12 +78,15 @@ function StarField() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let W = 0, H = 0, raf = 0;
+    let W = 0;
+    let H = 0;
+    let raf = 0;
 
     const resize = () => {
       W = canvas.width = canvas.offsetWidth;
       H = canvas.height = canvas.offsetHeight;
     };
+
     resize();
     window.addEventListener("resize", resize, { passive: true });
 
@@ -70,18 +100,22 @@ function StarField() {
 
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
+
       for (const s of stars) {
         s.a = Math.max(0.05, Math.min(1, s.a + s.da));
         if (s.a <= 0.05 || s.a >= 1) s.da *= -1;
+
         ctx.beginPath();
         ctx.arc(s.x * W, s.y * H, s.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(200,190,255,${s.a * 0.55})`;
         ctx.fill();
       }
+
       raf = requestAnimationFrame(draw);
     };
 
     draw();
+
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
@@ -104,25 +138,22 @@ function TechNode({
   ringAngle,
   hoveredName,
   onHover,
+  mounted,
 }: {
-  tech: (typeof TECH)[0];
-  ringAngle: number;  // live spinning angle in degrees
+  tech: (typeof TECH)[number];
+  ringAngle: number;
   hoveredName: string | null;
   onHover: (name: string | null) => void;
+  mounted: boolean;
 }) {
   const radius = RING_RADII[tech.ring];
-  const baseAngle = (tech.angle * Math.PI) / 180;
-  const live = (ringAngle * Math.PI) / 180;
-  const totalAngle = baseAngle + live;
-
-  const x = Math.cos(totalAngle) * radius;
-  const y = Math.sin(totalAngle) * radius * 0.38; // flatten into ellipse
+  const { x, y } = getOrbitPosition(tech.angle, ringAngle, radius);
 
   const isHovered = hoveredName === tech.name;
   const isOther = hoveredName !== null && !isHovered;
 
-  const size = tech.ring === 1 ? 52 : tech.ring === 2 ? 44 : 38;
-  const fontSize = tech.ring === 1 ? 13 : tech.ring === 2 ? 11 : 10;
+  const size = getNodeSize(tech.ring);
+  const fontSize = getFontSize(tech.ring);
 
   return (
     <motion.div
@@ -130,27 +161,36 @@ function TechNode({
       style={{
         left: `calc(50% + ${x}px - ${size / 2}px)`,
         top: `calc(50% + ${y}px - ${size / 2}px)`,
-        width: size,
-        height: size,
+        width: `${size}px`,
+        height: `${size}px`,
         zIndex: tech.ring === 1 ? 30 : tech.ring === 2 ? 20 : 10,
       }}
-      initial={{ opacity: 0, scale: 0 }}
-      whileInView={{ opacity: 1, scale: 1 }}
+      initial={mounted ? { opacity: 0, scale: 0 } : false}
+      whileInView={mounted ? { opacity: 1, scale: 1 } : undefined}
       viewport={{ once: true }}
-      transition={{ delay: 0.1 + tech.ring * 0.12 + (tech.angle / 360) * 0.3, type: "spring", stiffness: 200 }}
+      transition={{
+        delay: 0.1 + tech.ring * 0.12 + (tech.angle / 360) * 0.3,
+        type: "spring",
+        stiffness: 200,
+      }}
     >
       <motion.div
         className="relative flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-full"
-        animate={{
-          scale: isHovered ? 1.35 : isOther ? 0.75 : 1,
-          opacity: isOther ? 0.35 : 1,
-        }}
-        whileHover={{ scale: 1.38 }}
+        animate={
+          mounted
+            ? {
+                scale: isHovered ? 1.35 : isOther ? 0.75 : 1,
+                opacity: isOther ? 0.35 : 1,
+              }
+            : false
+        }
+        whileHover={mounted ? { scale: 1.38 } : undefined}
         transition={{ type: "spring", stiffness: 300, damping: 22 }}
         onMouseEnter={() => onHover(tech.name)}
         onMouseLeave={() => onHover(null)}
         style={{
-          background: `radial-gradient(circle at 35% 35%, rgba(255,255,255,0.12), rgba(0,0,0,0.3))`,
+          background:
+            "radial-gradient(circle at 35% 35%, rgba(255,255,255,0.12), rgba(0,0,0,0.3))",
           border: isHovered
             ? `1.5px solid ${tech.accent}`
             : "0.5px solid rgba(255,255,255,0.14)",
@@ -160,13 +200,11 @@ function TechNode({
           backdropFilter: "blur(8px)",
         }}
       >
-        {/* inner ring */}
         <div
           className="pointer-events-none absolute inset-[4px] rounded-full opacity-30"
           style={{ border: `0.5px solid ${tech.accent}` }}
         />
 
-        {/* icon */}
         <span
           className="relative z-10 font-bold leading-none"
           style={{ fontSize: fontSize + 1, color: tech.accent }}
@@ -174,11 +212,10 @@ function TechNode({
           {tech.icon}
         </span>
 
-        {/* label */}
         {isHovered && (
           <motion.div
-            initial={{ opacity: 0, y: 6, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            initial={mounted ? { opacity: 0, y: 6, scale: 0.9 } : false}
+            animate={mounted ? { opacity: 1, y: 0, scale: 1 } : undefined}
             className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-[10px] font-semibold backdrop-blur-md"
             style={{
               background: "rgba(8,6,20,0.88)",
@@ -200,16 +237,32 @@ function TechNode({
 ───────────────────────────────────────────────────────────────────────────── */
 export default function TechOrbitSection() {
   const [hoveredTech, setHoveredTech] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Spinning angles for each ring (updated via RAF)
-  const [ringAngles, setRingAngles] = useState([0, 0, 0, 0]);
+  const [ringAngles, setRingAngles] = useState<[number, number, number, number]>([0, 0, 0, 0]);
   const startRef = useRef<number | null>(null);
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
+    setMounted(true);
+
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize, { passive: true });
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     const tick = (ts: number) => {
-      if (!startRef.current) startRef.current = ts;
-      const elapsed = (ts - startRef.current) / 1000; // seconds
+      if (startRef.current === null) startRef.current = ts;
+      const elapsed = (ts - startRef.current) / 1000;
 
       setRingAngles([
         0,
@@ -220,15 +273,24 @@ export default function TechOrbitSection() {
 
       rafRef.current = requestAnimationFrame(tick);
     };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, []);
 
-  // 3D mouse tilt
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [mounted]);
+
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const rotateY = useSpring(useTransform(mouseX, [-400, 400], [-16, 16]), { stiffness: 90, damping: 22 });
-  const rotateX = useSpring(useTransform(mouseY, [-300, 300], [10, -10]), { stiffness: 90, damping: 22 });
+
+  const rotateY = useSpring(useTransform(mouseX, [-400, 400], [-16, 16]), {
+    stiffness: 90,
+    damping: 22,
+  });
+
+  const rotateX = useSpring(useTransform(mouseY, [-300, 300], [10, -10]), {
+    stiffness: 90,
+    damping: 22,
+  });
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -246,18 +308,26 @@ export default function TechOrbitSection() {
 
   const hoveredData = TECH.find((t) => t.name === hoveredTech);
 
+  const orbitWidth = isMobile ? 340 : 760;
+  const orbitHeight = isMobile ? 340 : 520;
+  const viewBox = isMobile ? "0 0 340 340" : "0 0 760 520";
+  const cx = isMobile ? 170 : 380;
+  const cy = isMobile ? 170 : 260;
+  const ellipseScaleY = isMobile ? 0.72 : 0.38;
+
+  const mobileRadii = useMemo(() => [0, 70, 110, 145], []);
+  const activeRadii = isMobile ? mobileRadii : RING_RADII;
+
   return (
     <section
       id="tech"
-      className="relative overflow-hidden py-32 px-6 md:px-10"
+      className="relative overflow-hidden px-5 py-24 sm:px-6 md:px-10 md:py-32"
       style={{ background: "#07060e" }}
     >
-      {/* ── Stars ─────────────────────────────────────────────────────── */}
       <div className="absolute inset-0">
         <StarField />
       </div>
 
-      {/* ── Deep bg gradients ─────────────────────────────────────────── */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute inset-0"
@@ -275,7 +345,6 @@ export default function TechOrbitSection() {
         />
       </div>
 
-      {/* ── Grid lines ────────────────────────────────────────────────── */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.018]"
         style={{
@@ -286,34 +355,27 @@ export default function TechOrbitSection() {
       />
 
       <div className="relative z-10 mx-auto max-w-6xl">
-
-        {/* ── Section header ────────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="mb-20 text-center"
+          className="mb-14 text-center sm:mb-16 md:mb-20"
         >
-          {/* eyebrow */}
           <div className="mb-4 inline-flex items-center gap-3">
             <div
-              className="h-px w-10"
-              style={{
-                background: "linear-gradient(90deg,transparent,#c9a96e)",
-              }}
+              className="h-px w-8 sm:w-10"
+              style={{ background: "linear-gradient(90deg,transparent,#c9a96e)" }}
             />
             <span
-              className="text-[11px] font-medium uppercase tracking-[0.3em]"
+              className="text-[10px] font-medium uppercase tracking-[0.26em] sm:text-[11px] sm:tracking-[0.3em]"
               style={{ color: "#c9a96e" }}
             >
               Technical Arsenal
             </span>
             <div
-              className="h-px w-10"
-              style={{
-                background: "linear-gradient(90deg,#c9a96e,transparent)",
-              }}
+              className="h-px w-8 sm:w-10"
+              style={{ background: "linear-gradient(90deg,#c9a96e,transparent)" }}
             />
           </div>
 
@@ -329,7 +391,7 @@ export default function TechOrbitSection() {
           </h2>
 
           <p
-            className="mx-auto max-w-lg text-[15px] font-light leading-relaxed"
+            className="mx-auto max-w-lg text-[14px] font-light leading-relaxed sm:text-[15px]"
             style={{ color: "rgba(200,190,230,0.45)" }}
           >
             I&apos;m currently looking to join a{" "}
@@ -338,36 +400,37 @@ export default function TechOrbitSection() {
           </p>
         </motion.div>
 
-        {/* ── Orbit system ──────────────────────────────────────────────── */}
         <div className="flex justify-center">
           <motion.div
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{
-              rotateX,
-              rotateY,
+              rotateX: mounted ? rotateX : 0,
+              rotateY: mounted ? rotateY : 0,
               transformStyle: "preserve-3d",
-              width: 760,
-              height: 520,
+              width: orbitWidth,
+              height: orbitHeight,
+              maxWidth: "100%",
             }}
             className="relative"
-            // fixed size container
           >
             <div
-              className="relative"
-              style={{ width: 760, height: 520, transformStyle: "preserve-3d" }}
+              className="relative mx-auto"
+              style={{
+                width: orbitWidth,
+                height: orbitHeight,
+                maxWidth: "100%",
+                transformStyle: "preserve-3d",
+              }}
             >
-
-              {/* ── Elliptical ring tracks ─────────────────────────────── */}
               {[1, 2, 3].map((ring) => {
-                const rx = RING_RADII[ring];
-                const ry = rx * 0.38;
-                const cx = 380, cy = 260;
+                const rx = activeRadii[ring];
+                const ry = round(rx * ellipseScaleY);
                 return (
                   <svg
                     key={ring}
                     className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
-                    viewBox="0 0 760 520"
+                    viewBox={viewBox}
                   >
                     <ellipse
                       cx={cx}
@@ -383,25 +446,27 @@ export default function TechOrbitSection() {
                 );
               })}
 
-              {/* ── Connection lines (SVG, from core to each node) ────── */}
               <svg
                 className="pointer-events-none absolute inset-0 overflow-visible"
-                style={{ width: 760, height: 520 }}
-                viewBox="0 0 760 520"
+                style={{ width: orbitWidth, height: orbitHeight }}
+                viewBox={viewBox}
               >
                 {TECH.map((tech) => {
-                  const radius = RING_RADII[tech.ring];
+                  const radius = activeRadii[tech.ring];
                   const base = (tech.angle * Math.PI) / 180;
                   const live = (ringAngles[tech.ring] * Math.PI) / 180;
                   const a = base + live;
-                  const nx = 380 + Math.cos(a) * radius;
-                  const ny = 260 + Math.sin(a) * radius * 0.38;
+                  const nx = round(cx + Math.cos(a) * radius);
+                  const ny = round(cy + Math.sin(a) * radius * ellipseScaleY);
                   const isHov = hoveredTech === tech.name;
+
                   return (
                     <line
                       key={tech.name}
-                      x1={380} y1={260}
-                      x2={nx} y2={ny}
+                      x1={cx}
+                      y1={cy}
+                      x2={nx}
+                      y2={ny}
                       stroke={
                         isHov
                           ? tech.accent
@@ -414,43 +479,123 @@ export default function TechOrbitSection() {
                 })}
               </svg>
 
-              {/* ── Tech nodes ────────────────────────────────────────── */}
-              {TECH.map((tech) => (
-                <TechNode
-                  key={tech.name}
-                  tech={tech}
-                  ringAngle={ringAngles[tech.ring]}
-                  hoveredName={hoveredTech}
-                  onHover={setHoveredTech}
-                />
-              ))}
+              {TECH.map((tech) => {
+                const radius = activeRadii[tech.ring];
+                const ringAngle = ringAngles[tech.ring];
 
-              {/* ── Center Core ───────────────────────────────────────── */}
+                const adjustedTech = { ...tech };
+                const originalRadius = RING_RADII[tech.ring];
+                const pos = getOrbitPosition(tech.angle, ringAngle, radius);
+
+                return (
+                  <motion.div
+                    key={tech.name}
+                    className="absolute"
+                    style={{
+                      left: `calc(50% + ${pos.x}px - ${getNodeSize(tech.ring) / 2}px)`,
+                      top: `calc(50% + ${round((pos.y / 0.38) * ellipseScaleY)}px - ${getNodeSize(tech.ring) / 2}px)`,
+                      width: `${getNodeSize(tech.ring)}px`,
+                      height: `${getNodeSize(tech.ring)}px`,
+                      zIndex: tech.ring === 1 ? 30 : tech.ring === 2 ? 20 : 10,
+                    }}
+                    initial={mounted ? { opacity: 0, scale: 0 } : false}
+                    whileInView={mounted ? { opacity: 1, scale: 1 } : undefined}
+                    viewport={{ once: true }}
+                    transition={{
+                      delay: 0.1 + tech.ring * 0.12 + (tech.angle / 360) * 0.3,
+                      type: "spring",
+                      stiffness: 200,
+                    }}
+                  >
+                    <motion.div
+                      className="relative flex h-full w-full cursor-pointer flex-col items-center justify-center rounded-full"
+                      animate={
+                        mounted
+                          ? {
+                              scale:
+                                hoveredTech === tech.name
+                                  ? 1.35
+                                  : hoveredTech !== null
+                                  ? 0.75
+                                  : 1,
+                              opacity:
+                                hoveredTech !== null && hoveredTech !== tech.name ? 0.35 : 1,
+                            }
+                          : false
+                      }
+                      whileHover={mounted ? { scale: 1.38 } : undefined}
+                      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                      onMouseEnter={() => setHoveredTech(tech.name)}
+                      onMouseLeave={() => setHoveredTech(null)}
+                      style={{
+                        background:
+                          "radial-gradient(circle at 35% 35%, rgba(255,255,255,0.12), rgba(0,0,0,0.3))",
+                        border:
+                          hoveredTech === tech.name
+                            ? `1.5px solid ${tech.accent}`
+                            : "0.5px solid rgba(255,255,255,0.14)",
+                        boxShadow:
+                          hoveredTech === tech.name
+                            ? `0 0 24px ${tech.glow}, 0 0 8px ${tech.glow}, inset 0 1px 0 rgba(255,255,255,0.15)`
+                            : `0 0 12px ${tech.glow}55, inset 0 1px 0 rgba(255,255,255,0.08)`,
+                        backdropFilter: "blur(8px)",
+                      }}
+                    >
+                      <div
+                        className="pointer-events-none absolute inset-[4px] rounded-full opacity-30"
+                        style={{ border: `0.5px solid ${tech.accent}` }}
+                      />
+
+                      <span
+                        className="relative z-10 font-bold leading-none"
+                        style={{ fontSize: getFontSize(tech.ring) + 1, color: tech.accent }}
+                      >
+                        {tech.icon}
+                      </span>
+
+                      {hoveredTech === tech.name && (
+                        <motion.div
+                          initial={mounted ? { opacity: 0, y: 6, scale: 0.9 } : false}
+                          animate={mounted ? { opacity: 1, y: 0, scale: 1 } : undefined}
+                          className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-[10px] font-semibold backdrop-blur-md"
+                          style={{
+                            background: "rgba(8,6,20,0.88)",
+                            border: `0.5px solid ${tech.accent}55`,
+                            color: tech.accent,
+                            letterSpacing: "0.08em",
+                          }}
+                        >
+                          {tech.name}
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  </motion.div>
+                );
+              })}
+
               <div
                 className="absolute left-1/2 top-1/2 z-40 -translate-x-1/2 -translate-y-1/2"
-                style={{ width: 110, height: 110, marginLeft: 0, marginTop: 0 }}
+                style={{
+                  width: isMobile ? 86 : 110,
+                  height: isMobile ? 86 : 110,
+                }}
               >
-                {/* outer pulse ring */}
                 <motion.div
                   className="absolute inset-0 rounded-full"
-                  style={{
-                    border: "0.5px solid rgba(160,123,212,0.35)",
-                  }}
-                  animate={{ scale: [1, 1.25, 1], opacity: [0.5, 0, 0.5] }}
+                  style={{ border: "0.5px solid rgba(160,123,212,0.35)" }}
+                  animate={mounted ? { scale: [1, 1.25, 1], opacity: [0.5, 0, 0.5] } : false}
                   transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
                 />
+
                 <motion.div
                   className="absolute inset-0 rounded-full"
-                  style={{
-                    border: "0.5px solid rgba(160,123,212,0.2)",
-                  }}
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] }}
+                  style={{ border: "0.5px solid rgba(160,123,212,0.2)" }}
+                  animate={mounted ? { scale: [1, 1.5, 1], opacity: [0.3, 0, 0.3] } : false}
                   transition={{ repeat: Infinity, duration: 3, delay: 0.5, ease: "easeInOut" }}
                 />
 
-                {/* main orb */}
                 <motion.div
-                  animate={{ scale: [1, 1.04, 1] }}
+                  animate={mounted ? { scale: [1, 1.04, 1] } : false}
                   transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                   className="relative h-full w-full rounded-full"
                   style={{
@@ -461,7 +606,6 @@ export default function TechOrbitSection() {
                       "0 0 60px rgba(120,80,200,0.6), 0 0 120px rgba(100,60,180,0.3), inset 0 1px 0 rgba(255,255,255,0.2)",
                   }}
                 >
-                  {/* inner ring */}
                   <div
                     className="absolute inset-[8px] rounded-full"
                     style={{
@@ -471,31 +615,29 @@ export default function TechOrbitSection() {
                     }}
                   />
 
-                  {/* animated rotating inner ring */}
                   <motion.div
                     className="absolute inset-[14px] rounded-full"
                     style={{ border: "0.5px dashed rgba(200,170,255,0.25)" }}
-                    animate={{ rotate: 360 }}
+                    animate={mounted ? { rotate: 360 } : false}
                     transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
                   />
 
-                  {/* center symbol */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     {hoveredData ? (
                       <motion.span
                         key={hoveredData.name}
-                        initial={{ scale: 0.6, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className="text-2xl font-bold"
+                        initial={mounted ? { scale: 0.6, opacity: 0 } : false}
+                        animate={mounted ? { scale: 1, opacity: 1 } : undefined}
+                        className="text-xl font-bold sm:text-2xl"
                         style={{ color: hoveredData.accent }}
                       >
                         {hoveredData.icon}
                       </motion.span>
                     ) : (
                       <motion.span
-                        className="text-3xl font-light"
+                        className="text-2xl font-light sm:text-3xl"
                         style={{ color: "rgba(220,200,255,0.85)" }}
-                        animate={{ rotate: [0, 360] }}
+                        animate={mounted ? { rotate: [0, 360] } : false}
                         transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
                       >
                         ✦
@@ -504,12 +646,11 @@ export default function TechOrbitSection() {
                   </div>
                 </motion.div>
 
-                {/* tooltip on hover */}
                 {hoveredData && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute top-full mt-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg px-3 py-1.5 text-[12px] font-semibold tracking-wide"
+                    initial={mounted ? { opacity: 0, y: 8 } : false}
+                    animate={mounted ? { opacity: 1, y: 0 } : undefined}
+                    className="absolute left-1/2 top-full mt-3 -translate-x-1/2 whitespace-nowrap rounded-lg px-3 py-1.5 text-[12px] font-semibold tracking-wide"
                     style={{
                       background: "rgba(8,6,20,0.9)",
                       border: `0.5px solid ${hoveredData.accent}55`,
@@ -522,12 +663,11 @@ export default function TechOrbitSection() {
                 )}
               </div>
 
-              {/* ── Central floor glow ────────────────────────────────── */}
               <div
                 className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
                 style={{
-                  width: 440,
-                  height: 180,
+                  width: isMobile ? 220 : 440,
+                  height: isMobile ? 110 : 180,
                   background:
                     "radial-gradient(ellipse, rgba(100,60,200,0.22) 0%, transparent 70%)",
                   filter: "blur(24px)",
@@ -536,8 +676,8 @@ export default function TechOrbitSection() {
               <div
                 className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
                 style={{
-                  width: 280,
-                  height: 100,
+                  width: isMobile ? 160 : 280,
+                  height: isMobile ? 70 : 100,
                   background:
                     "radial-gradient(ellipse, rgba(160,80,240,0.16) 0%, transparent 70%)",
                   filter: "blur(16px)",
@@ -547,25 +687,24 @@ export default function TechOrbitSection() {
           </motion.div>
         </div>
 
-        {/* ── Legend / Skill chips ──────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5, duration: 0.7 }}
-          className="mt-16 flex flex-wrap justify-center gap-2.5"
+          className="mt-12 flex flex-wrap justify-center gap-2.5 sm:mt-16"
         >
           {TECH.map((tech, i) => (
             <motion.button
               key={tech.name}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={mounted ? { opacity: 0, scale: 0.8 } : false}
+              whileInView={mounted ? { opacity: 1, scale: 1 } : undefined}
               viewport={{ once: true }}
               transition={{ delay: 0.05 * i, type: "spring", stiffness: 220 }}
-              whileHover={{ scale: 1.08, y: -2 }}
+              whileHover={mounted ? { scale: 1.08, y: -2 } : undefined}
               onMouseEnter={() => setHoveredTech(tech.name)}
               onMouseLeave={() => setHoveredTech(null)}
-              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11.5px] font-medium transition-colors"
+              className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium sm:text-[11.5px]"
               style={{
                 background:
                   hoveredTech === tech.name
@@ -587,13 +726,12 @@ export default function TechOrbitSection() {
           ))}
         </motion.div>
 
-        {/* ── Bottom CTA ────────────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.8 }}
-          className="mt-16 flex flex-col items-center gap-3 text-center"
+          className="mt-14 flex flex-col items-center gap-3 text-center sm:mt-16"
         >
           <div
             className="h-px w-24"
@@ -603,13 +741,12 @@ export default function TechOrbitSection() {
             }}
           />
           <p
-            className="text-[12px] font-medium uppercase tracking-[0.28em]"
+            className="text-[11px] font-medium uppercase tracking-[0.24em] sm:text-[12px] sm:tracking-[0.28em]"
             style={{ color: "rgba(200,190,230,0.28)" }}
           >
             {TECH.length}+ technologies &amp; counting
           </p>
         </motion.div>
-
       </div>
     </section>
   );

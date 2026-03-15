@@ -37,8 +37,8 @@ function ParticleField() {
     if (!ctx) return;
 
     let animId = 0;
-    let W = 0,
-      H = 0;
+    let W = 0;
+    let H = 0;
 
     type P = {
       x: number;
@@ -49,6 +49,7 @@ function ParticleField() {
       alpha: number;
       hue: number;
     };
+
     const COUNT = 80;
     const pts: P[] = [];
 
@@ -78,8 +79,10 @@ function ParticleField() {
       for (const p of pts) {
         p.x += p.vx;
         p.y += p.vy;
+
         if (p.x < 0) p.x = W;
         else if (p.x > W) p.x = 0;
+
         if (p.y < 0) p.y = H;
         else if (p.y > H) p.y = 0;
 
@@ -94,6 +97,7 @@ function ParticleField() {
           const dx = pts[i].x - pts[j].x;
           const dy = pts[i].y - pts[j].y;
           const d = Math.sqrt(dx * dx + dy * dy);
+
           if (d < 120) {
             ctx.beginPath();
             ctx.moveTo(pts[i].x, pts[i].y);
@@ -109,6 +113,7 @@ function ParticleField() {
     };
 
     draw();
+
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", resize);
@@ -156,11 +161,13 @@ function TiltCard({ children, className = "", style }: TiltCardProps) {
     (e: React.MouseEvent<HTMLDivElement>) => {
       const el = ref.current;
       if (!el) return;
+
       const rect = el.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const cx = rect.width / 2;
       const cy = rect.height / 2;
+
       rRX.set(((y - cy) / cy) * -12);
       rRY.set(((x - cx) / cx) * 12);
       rGX.set((x / rect.width) * 100);
@@ -194,7 +201,6 @@ function TiltCard({ children, className = "", style }: TiltCardProps) {
       style={combinedStyle}
       className={className}
     >
-      {/* mouse-follow sheen */}
       <motion.div
         className="pointer-events-none absolute inset-0 z-10 rounded-[20px]"
         style={{ background: glowBg }}
@@ -224,6 +230,7 @@ function ScrambleText({
   useEffect(() => {
     let iter = 0;
     const total = text.length * 3;
+
     const id = setInterval(() => {
       setDisplay(
         text
@@ -235,12 +242,14 @@ function ScrambleText({
           )
           .join("")
       );
+
       iter++;
       if (iter > total) {
         clearInterval(id);
         setDisplay(text);
       }
     }, 28);
+
     return () => clearInterval(id);
   }, [text, trigger]);
 
@@ -258,6 +267,7 @@ function OrbitRing({
   dotColor,
   dotSize,
   dotPos,
+  topClass = "top-[40%]",
 }: {
   size: number;
   duration: number;
@@ -266,17 +276,18 @@ function OrbitRing({
   dotColor: string;
   dotSize: number;
   dotPos?: string;
+  topClass?: string;
 }) {
   return (
     <>
       <div
-        className="pointer-events-none absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        className={`pointer-events-none absolute left-1/2 ${topClass} -translate-x-1/2 -translate-y-1/2 rounded-full`}
         style={{ width: size, height: size, border: borderStyle }}
       />
       <motion.div
         animate={{ rotate: 360 * direction }}
         transition={{ repeat: Infinity, duration, ease: "linear" }}
-        className="pointer-events-none absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2"
+        className={`pointer-events-none absolute left-1/2 ${topClass} -translate-x-1/2 -translate-y-1/2`}
         style={{ width: size, height: size }}
       >
         <span
@@ -320,7 +331,6 @@ function FloatBadge({
       className={`absolute z-20 rounded-xl border border-white/10 px-3 py-2 backdrop-blur-md ${className}`}
       style={{ background: "rgba(8,6,18,0.82)" }}
     >
-      {/* top glint */}
       <div
         className="pointer-events-none absolute left-[15%] right-[15%] top-0 h-px"
         style={{
@@ -346,13 +356,14 @@ function SkillBar({
   delay: number;
 }) {
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 sm:gap-3">
       <span
-        className="w-14 shrink-0 text-[10px] font-medium uppercase tracking-[0.16em]"
+        className="w-12 shrink-0 text-[9px] font-medium uppercase tracking-[0.14em] sm:w-14 sm:text-[10px] sm:tracking-[0.16em]"
         style={{ color: "rgba(200,190,230,0.36)" }}
       >
         {label}
       </span>
+
       <div
         className="h-[2px] flex-1 overflow-hidden rounded-full"
         style={{ background: "rgba(255,255,255,0.06)" }}
@@ -360,16 +371,16 @@ function SkillBar({
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
-          transition={{ delay, duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ delay, duration: 1, ease: [0.16, 1, 0.3, 1] }}
           className="h-full rounded-full"
           style={{
-            background:
-              "linear-gradient(90deg,#7b5ea7,#b08af0)",
+            background: "linear-gradient(90deg,#7b5ea7,#b08af0)",
           }}
         />
       </div>
+
       <span
-        className="w-7 text-right text-[10px]"
+        className="w-7 text-right text-[9px] sm:text-[10px]"
         style={{ color: "rgba(200,190,230,0.28)" }}
       >
         {pct}%
@@ -395,16 +406,16 @@ function StatItem({
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="flex flex-col items-center"
+      className="flex min-w-[88px] flex-col items-center sm:min-w-0"
     >
       <span
-        className="font-serif text-2xl font-bold leading-none tracking-tight"
+        className="font-serif text-xl font-bold leading-none tracking-tight sm:text-2xl"
         style={{ color: "#f0ecff", fontFamily: "'Playfair Display',serif" }}
       >
         {num}
       </span>
       <span
-        className="mt-1.5 text-[10px] font-medium uppercase tracking-[0.22em]"
+        className="mt-1.5 text-[9px] font-medium uppercase tracking-[0.18em] sm:text-[10px] sm:tracking-[0.22em]"
         style={{ color: "rgba(200,190,230,0.36)" }}
       >
         {label}
@@ -418,21 +429,22 @@ function StatItem({
 ───────────────────────────────────────────────────────────────────────────── */
 const BARS = [
   { label: "Frontend", pct: 95, delay: 1.05 },
-  { label: "Backend",  pct: 82, delay: 1.2  },
-  { label: "UI / UX",  pct: 88, delay: 1.35 },
+  { label: "Backend", pct: 82, delay: 1.2 },
+  { label: "UI / UX", pct: 88, delay: 1.35 },
 ];
 
 const STATS = [
   { num: "40+", label: "Projects delivered", delay: 1.3 },
-  { num: "5",   label: "Years experience",   delay: 1.4 },
-  { num: "3",   label: "Core disciplines",   delay: 1.5 },
+  { num: "5", label: "Years experience", delay: 1.4 },
+  { num: "3", label: "Core disciplines", delay: 1.5 },
 ];
 
 export default function Home() {
   const [scrambleTrig, setScrambleTrig] = useState(0);
   const [imgErr, setImgErr] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
-  /* custom cursor */
   const mX = useMotionValue(0);
   const mY = useMotionValue(0);
   const cX = useSpring(mX, { stiffness: 520, damping: 48 });
@@ -446,30 +458,32 @@ export default function Home() {
     [mX, mY]
   );
 
-  /* auto-scramble on mount */
   useEffect(() => {
     const t = setTimeout(() => setScrambleTrig(1), 900);
     return () => clearTimeout(t);
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+      setIsTablet(window.innerWidth >= 640 && window.innerWidth < 1024);
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize, { passive: true });
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <>
-      {/*
-        ── ADD TO layout.tsx or _document.tsx ──────────────────────────────
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet" />
-        ──────────────────────────────────────────────────────────────────── */}
+      <Navbar />
 
-      {/* ── We remove default Navbar here so we control nav ourselves ────── */}
-      {/* If you want to keep your existing Navbar component, re-add: <Navbar /> */}
-<Navbar/>
       <main
         className="relative min-h-screen overflow-hidden text-white"
         style={{ background: "#08070f", fontFamily: "'DM Sans',sans-serif" }}
         onMouseMove={onMouseMove}
       >
-        {/* ── custom cursor ─────────────────────────────────────────────── */}
         <motion.div
           className="pointer-events-none fixed left-0 top-0 z-[60] hidden mix-blend-difference md:block"
           style={{ x: cX, y: cY }}
@@ -477,7 +491,6 @@ export default function Home() {
           <div className="h-6 w-6 rounded-full bg-white/80" />
         </motion.div>
 
-        {/* ── Background: deep radial gradients ─────────────────────────── */}
         <div className="pointer-events-none absolute inset-0 -z-30">
           <div
             className="absolute inset-0"
@@ -502,7 +515,6 @@ export default function Home() {
           />
         </div>
 
-        {/* ── Grid lines ────────────────────────────────────────────────── */}
         <div
           className="pointer-events-none absolute inset-0 -z-20"
           style={{
@@ -514,7 +526,6 @@ export default function Home() {
           }}
         />
 
-        {/* ── Noise texture ─────────────────────────────────────────────── */}
         <div
           className="pointer-events-none absolute inset-0 -z-20 opacity-[0.028]"
           style={{
@@ -523,12 +534,10 @@ export default function Home() {
           }}
         />
 
-        {/* ── Particles ─────────────────────────────────────────────────── */}
         <div className="absolute inset-0 -z-10">
           <ParticleField />
         </div>
 
-        {/* ── Ambient floating orbs ─────────────────────────────────────── */}
         {[
           {
             style: {
@@ -588,74 +597,65 @@ export default function Home() {
           />
         ))}
 
-      
-
-        {/* ══════════════════════════════════════════════════════════════════
-            HERO SECTION
-        ══════════════════════════════════════════════════════════════════ */}
         <section
           id="hero"
-           className="relative mx-auto grid min-h-screen max-w-[1320px] items-center gap-12 px-8 pt-[80px] pb-28 md:px-16 lg:grid-cols-2"
+          className="relative mx-auto grid min-h-[100svh] max-w-[1320px] grid-cols-1 items-center gap-10 px-5 pb-16 pt-24 sm:gap-12 sm:px-8 sm:pb-20 sm:pt-28 md:px-12 lg:min-h-screen lg:grid-cols-2 lg:gap-12 lg:px-16 lg:pb-28 lg:pt-[80px]"
         >
-          {/* ──────────────────────── LEFT COLUMN ──────────────────────── */}
           <div className="relative z-10 flex flex-col">
-
-            {/* Eyebrow */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.05 }}
-              className="mb-7 flex items-center gap-3"
+              className="mb-5 flex items-center gap-3 sm:mb-6 md:mb-7"
             >
               <div
                 className="h-px w-8 shrink-0"
                 style={{
-                  background:
-                    "linear-gradient(90deg,#c9a96e,transparent)",
+                  background: "linear-gradient(90deg,#c9a96e,transparent)",
                 }}
               />
               <span
-                className="text-[11px] font-medium uppercase tracking-[0.28em]"
+                className="text-[10px] font-medium uppercase tracking-[0.24em] sm:text-[11px] sm:tracking-[0.28em]"
                 style={{ color: "#c9a96e" }}
               >
                 Software Engineer & Creative Dev
               </span>
             </motion.div>
 
-            {/* Name */}
             <motion.h1
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.85, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
-              className="leading-[1.05] tracking-tight"
+              transition={{
+                duration: 0.85,
+                delay: 0.12,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="leading-[0.98] tracking-tight"
               style={{ fontFamily: "'Playfair Display',serif" }}
             >
-              {/* First name — solid */}
               <span
                 className="block font-bold text-white"
-                style={{ fontSize: "clamp(3.4rem,6.5vw,5.2rem)" }}
+                style={{ fontSize: "clamp(2.5rem,11vw,5.2rem)" }}
               >
                 Rithmi
               </span>
-              {/* Last name — outlined italic */}
               <span
                 className="block font-normal italic"
                 style={{
-                  fontSize: "clamp(3.4rem,6.5vw,5.2rem)",
+                  fontSize: "clamp(2.4rem,10.5vw,5.2rem)",
                   color: "transparent",
-                  WebkitTextStroke: "1.5px rgba(200,185,255,0.4)",
+                  WebkitTextStroke: "1.2px rgba(200,185,255,0.4)",
                 }}
               >
                 Thewarapperuma
               </span>
             </motion.h1>
 
-            {/* Subtitle / scramble */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.55 }}
-              className="mt-5 flex items-center gap-3"
+              className="mt-4 flex items-center gap-3 sm:mt-5"
             >
               <div
                 className="h-px w-10 shrink-0"
@@ -666,8 +666,11 @@ export default function Home() {
               />
               <button
                 onClick={() => setScrambleTrig((t) => t + 1)}
-                className="text-[15.5px] font-light tracking-wide transition-colors"
-                style={{ color: "rgba(200,190,230,0.55)", fontFamily: "'DM Sans',sans-serif" }}
+                className="text-left text-[13.5px] font-light tracking-wide transition-colors sm:text-[15px]"
+                style={{
+                  color: "rgba(200,190,230,0.55)",
+                  fontFamily: "'DM Sans',sans-serif",
+                }}
               >
                 <ScrambleText
                   text="Crafting elegant digital experiences"
@@ -676,31 +679,33 @@ export default function Home() {
               </button>
             </motion.div>
 
-            {/* Bio */}
             <motion.p
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.48, duration: 0.7 }}
-              className="mt-6 max-w-[420px] text-[15px] font-light leading-[1.82]"
+              className="mt-5 max-w-[420px] text-[14px] font-light leading-[1.75] sm:mt-6 sm:text-[15px] sm:leading-[1.82]"
               style={{ color: "rgba(200,190,230,0.42)" }}
             >
-              Where engineering precision meets design intuition. I build immersive
-              interfaces and scalable frontend architecture for products people love.
+              Where engineering precision meets design intuition. I build
+              immersive interfaces and scalable frontend architecture for
+              products people love.
             </motion.p>
 
-            {/* CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.78, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-10 flex flex-wrap gap-3"
+              transition={{
+                delay: 0.78,
+                duration: 0.7,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap"
             >
-              {/* Primary */}
               <motion.a
                 href="#contact"
                 whileHover={{ scale: 1.04, y: -2 }}
                 whileTap={{ scale: 0.97 }}
-                className="relative overflow-hidden rounded px-8 py-3.5 text-[12.5px] font-medium uppercase tracking-[0.12em] text-white"
+                className="relative w-full overflow-hidden rounded px-8 py-3.5 text-center text-[12px] font-medium uppercase tracking-[0.12em] text-white sm:w-auto sm:text-[12.5px]"
                 style={{
                   background:
                     "linear-gradient(135deg,#7b5ea7 0%,#9b6fd4 100%)",
@@ -712,13 +717,12 @@ export default function Home() {
                 Hire me →
               </motion.a>
 
-              {/* Ghost */}
               <motion.a
                 href="/resume.pdf"
                 download="Rithmi-Thewarapperuma-Resume.pdf"
                 whileHover={{ scale: 1.04, y: -2 }}
                 whileTap={{ scale: 0.97 }}
-                className="rounded px-7 py-3.5 text-[12.5px] font-medium uppercase tracking-[0.12em] transition-colors"
+                className="w-full rounded px-7 py-3.5 text-center text-[12px] font-medium uppercase tracking-[0.12em] transition-colors sm:w-auto sm:text-[12.5px]"
                 style={{
                   background: "transparent",
                   color: "rgba(200,190,230,0.62)",
@@ -726,15 +730,12 @@ export default function Home() {
                   textDecoration: "none",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background =
-                    "rgba(255,255,255,0.04)";
-                  (e.currentTarget as HTMLElement).style.color =
-                    "rgba(200,190,230,0.9)";
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                  e.currentTarget.style.color = "rgba(200,190,230,0.9)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = "transparent";
-                  (e.currentTarget as HTMLElement).style.color =
-                    "rgba(200,190,230,0.62)";
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "rgba(200,190,230,0.62)";
                 }}
               >
                 Download CV
@@ -744,7 +745,7 @@ export default function Home() {
                 href="#projects"
                 whileHover={{ scale: 1.04, y: -2 }}
                 whileTap={{ scale: 0.97 }}
-                className="rounded px-7 py-3.5 text-[12.5px] font-medium uppercase tracking-[0.12em] transition-colors"
+                className="w-full rounded px-7 py-3.5 text-center text-[12px] font-medium uppercase tracking-[0.12em] transition-colors sm:w-auto sm:text-[12.5px]"
                 style={{
                   background: "transparent",
                   color: "rgba(200,190,230,0.62)",
@@ -752,31 +753,30 @@ export default function Home() {
                   textDecoration: "none",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background =
-                    "rgba(255,255,255,0.04)";
-                  (e.currentTarget as HTMLElement).style.color =
-                    "rgba(200,190,230,0.9)";
+                  e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                  e.currentTarget.style.color = "rgba(200,190,230,0.9)";
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = "transparent";
-                  (e.currentTarget as HTMLElement).style.color =
-                    "rgba(200,190,230,0.62)";
+                  e.currentTarget.style.background = "transparent";
+                  e.currentTarget.style.color = "rgba(200,190,230,0.62)";
                 }}
               >
                 View Work
               </motion.a>
             </motion.div>
 
-            {/* Social links */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 1.05 }}
-              className="mt-10 flex items-center gap-8"
+              className="mt-8 flex flex-wrap items-center gap-5 sm:mt-10 sm:gap-8"
             >
               {[
-                { name: "GitHub",   link: "https://github.com/Rithmi" },
-                { name: "LinkedIn", link: "https://lk.linkedin.com/in/rithmi-thewarapperuma" },
+                { name: "GitHub", link: "https://github.com/Rithmi" },
+                {
+                  name: "LinkedIn",
+                  link: "https://lk.linkedin.com/in/rithmi-thewarapperuma",
+                },
               ].map((item, i) => (
                 <motion.a
                   key={item.name}
@@ -787,16 +787,17 @@ export default function Home() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 1.1 + i * 0.1 }}
                   whileHover={{ y: -2 }}
-                  className="flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.24em] transition-colors"
-                  style={{ color: "rgba(200,190,230,0.32)", textDecoration: "none" }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.color =
-                      "rgba(200,190,230,0.78)")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.color =
-                      "rgba(200,190,230,0.32)")
-                  }
+                  className="flex items-center gap-2.5 text-[10px] font-medium uppercase tracking-[0.22em] transition-colors sm:text-[11px] sm:tracking-[0.24em]"
+                  style={{
+                    color: "rgba(200,190,230,0.32)",
+                    textDecoration: "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "rgba(200,190,230,0.78)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = "rgba(200,190,230,0.32)";
+                  }}
                 >
                   <span
                     className="inline-block h-px w-5 shrink-0 transition-all duration-300"
@@ -807,12 +808,11 @@ export default function Home() {
               ))}
             </motion.div>
 
-            {/* Stats strip (below left col on mobile; bottom of hero on desktop) */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.25, duration: 0.7 }}
-              className="mt-12 flex items-center gap-6 lg:hidden"
+              className="mt-10 flex flex-wrap items-center gap-5 sm:mt-12 sm:gap-6 lg:hidden"
             >
               {STATS.map((s) => (
                 <StatItem key={s.label} {...s} />
@@ -820,25 +820,27 @@ export default function Home() {
             </motion.div>
           </div>
 
-          {/* ──────────────────────── RIGHT COLUMN ─────────────────────── */}
           <motion.div
             initial={{ opacity: 0, x: 60 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1.1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 1.1,
+              delay: 0.2,
+              ease: [0.16, 1, 0.3, 1],
+            }}
             className="relative flex items-center justify-center"
             style={{ perspective: 1200 }}
           >
             <TiltCard
-              className="relative h-[600px] w-full max-w-[460px] rounded-[20px] md:cursor-none"
+              className="relative h-[420px] w-full max-w-[340px] rounded-[20px] sm:h-[500px] sm:max-w-[400px] md:h-[560px] md:max-w-[440px] lg:h-[600px] lg:max-w-[460px] md:cursor-none"
               style={{
                 border: "0.5px solid rgba(255,255,255,0.08)",
                 background: "rgba(255,255,255,0.025)",
                 backdropFilter: "blur(2px)",
                 boxShadow:
                   "0 0 0 0.5px rgba(255,255,255,0.05) inset, 0 48px 120px rgba(0,0,0,0.75), 0 24px 48px rgba(0,0,0,0.5)",
-              } as React.CSSProperties}
+              }}
             >
-              {/* top edge highlight */}
               <div
                 className="pointer-events-none absolute left-[18%] right-[18%] top-0 h-px"
                 style={{
@@ -847,7 +849,6 @@ export default function Home() {
                 }}
               />
 
-              {/* inner ambient glow */}
               <div
                 className="pointer-events-none absolute inset-0 rounded-[20px]"
                 style={{
@@ -856,35 +857,33 @@ export default function Home() {
                 }}
               />
 
-              {/* ── Orbit rings ─────────────────────────────────────── */}
               <OrbitRing
-                size={360}
+                size={isMobile ? 220 : isTablet ? 300 : 360}
                 duration={22}
                 direction={1}
                 borderStyle="0.5px solid rgba(140,100,220,0.14)"
                 dotColor="rgba(160,123,212,1)"
-                dotSize={10}
+                dotSize={isMobile ? 7 : 10}
               />
+
               <OrbitRing
-                size={430}
+                size={isMobile ? 270 : isTablet ? 360 : 430}
                 duration={32}
                 direction={-1}
                 borderStyle="0.5px dashed rgba(160,110,240,0.09)"
                 dotColor="#c9a96e"
-                dotSize={7}
+                dotSize={isMobile ? 5 : 7}
                 dotPos="top-right"
               />
 
-              {/* ── Center glow ──────────────────────────────────── */}
               <div
-                className="pointer-events-none absolute left-1/2 top-[40%] h-[240px] w-[240px] -translate-x-1/2 -translate-y-1/2 rounded-full"
+                className="pointer-events-none absolute left-1/2 top-[40%] h-[160px] w-[160px] -translate-x-1/2 -translate-y-1/2 rounded-full sm:h-[200px] sm:w-[200px] md:h-[240px] md:w-[240px]"
                 style={{
                   background: "rgba(80,40,150,0.18)",
                   filter: "blur(60px)",
                 }}
               />
 
-              {/* ── Profile image ────────────────────────────────── */}
               <motion.div
                 animate={{ y: [0, -14, 0] }}
                 transition={{
@@ -904,12 +903,12 @@ export default function Home() {
                     alt="Rithmi Thewarapperuma"
                     width={340}
                     height={520}
-                    className="h-auto w-[300px] object-contain md:w-[320px]"
+                    className="h-auto w-[190px] object-contain sm:w-[240px] md:w-[290px] lg:w-[320px]"
                     onError={() => setImgErr(true)}
                   />
                 ) : (
                   <div
-                    className="flex h-[280px] w-[220px] items-center justify-center rounded-full text-8xl"
+                    className="flex h-[180px] w-[150px] items-center justify-center rounded-full text-5xl sm:h-[220px] sm:w-[180px] sm:text-6xl md:h-[260px] md:w-[210px] md:text-7xl"
                     style={{
                       background:
                         "linear-gradient(160deg,rgba(100,60,200,0.3),rgba(60,20,100,0.3))",
@@ -921,31 +920,39 @@ export default function Home() {
                 )}
               </motion.div>
 
-              {/* ── Floating badges ─────────────────────────────── */}
-              <FloatBadge delay={0.85} className="right-4 top-4">
+              <FloatBadge
+                delay={0.85}
+                className="right-2 top-2 px-2.5 py-2 sm:right-4 sm:top-4"
+              >
                 <p
-                  className="text-[9px] font-medium uppercase tracking-[0.22em]"
+                  className="text-[8px] font-medium uppercase tracking-[0.22em] sm:text-[9px]"
                   style={{ color: "rgba(200,190,230,0.35)" }}
                 >
                   Portfolio
                 </p>
                 <p
-                  className="mt-0.5 text-[13px] font-semibold tracking-wide"
-                  style={{ color: "#c9a96e", fontFamily: "'DM Sans',sans-serif" }}
+                  className="mt-0.5 text-[11px] font-semibold tracking-wide sm:text-[13px]"
+                  style={{
+                    color: "#c9a96e",
+                    fontFamily: "'DM Sans',sans-serif",
+                  }}
                 >
                   2026 ✦
                 </p>
               </FloatBadge>
 
-              <FloatBadge delay={1.0} className="left-4 top-[28%]">
+              <FloatBadge
+                delay={1}
+                className="left-2 top-[22%] px-2.5 py-2 sm:left-4 sm:top-[28%]"
+              >
                 <p
-                  className="text-[9px] font-medium uppercase tracking-[0.18em]"
+                  className="text-[8px] font-medium uppercase tracking-[0.18em] sm:text-[9px]"
                   style={{ color: "rgba(200,190,230,0.35)" }}
                 >
                   Projects
                 </p>
                 <p
-                  className="mt-0.5 text-[22px] font-bold leading-none"
+                  className="mt-0.5 text-[16px] font-bold leading-none sm:text-[20px] md:text-[22px]"
                   style={{
                     color: "#c4a8ff",
                     fontFamily: "'Playfair Display',serif",
@@ -955,15 +962,18 @@ export default function Home() {
                 </p>
               </FloatBadge>
 
-              <FloatBadge delay={1.14} className="right-4 top-[58%]">
+              <FloatBadge
+                delay={1.14}
+                className="right-2 top-[60%] px-2.5 py-2 sm:right-4 sm:top-[58%]"
+              >
                 <p
-                  className="text-[9px] font-medium uppercase tracking-[0.18em]"
+                  className="text-[8px] font-medium uppercase tracking-[0.18em] sm:text-[9px]"
                   style={{ color: "rgba(200,190,230,0.35)" }}
                 >
                   Experience
                 </p>
                 <p
-                  className="mt-0.5 text-[22px] font-bold leading-none"
+                  className="mt-0.5 text-[16px] font-bold leading-none sm:text-[20px] md:text-[22px]"
                   style={{
                     color: "#a0d4b8",
                     fontFamily: "'Playfair Display',serif",
@@ -973,19 +983,21 @@ export default function Home() {
                 </p>
               </FloatBadge>
 
-              {/* ── Status + skill bars ──────────────────────────── */}
               <motion.div
                 initial={{ opacity: 0, y: 22 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.75, duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute bottom-5 left-5 right-5 z-20 rounded-2xl p-5"
+                transition={{
+                  delay: 0.75,
+                  duration: 0.75,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="absolute bottom-3 left-3 right-3 z-20 rounded-2xl p-3 sm:bottom-4 sm:left-4 sm:right-4 sm:p-4 md:bottom-5 md:left-5 md:right-5 md:p-5"
                 style={{
                   background: "rgba(8,6,20,0.88)",
                   backdropFilter: "blur(20px)",
                   border: "0.5px solid rgba(255,255,255,0.09)",
                 }}
               >
-                {/* top glint */}
                 <div
                   className="pointer-events-none absolute left-[18%] right-[18%] top-0 h-px"
                   style={{
@@ -994,22 +1006,22 @@ export default function Home() {
                   }}
                 />
 
-                {/* header */}
                 <div className="mb-4 flex items-start justify-between gap-2">
                   <div>
                     <p
-                      className="text-[9px] font-medium uppercase tracking-[0.3em]"
+                      className="text-[8px] font-medium uppercase tracking-[0.28em] sm:text-[9px] sm:tracking-[0.3em]"
                       style={{ color: "rgba(100,200,140,0.62)" }}
                     >
                       Open to Opportunities
                     </p>
                     <p
-                      className="mt-1 text-[14px] font-medium"
+                      className="mt-1 text-[12px] font-medium sm:text-[13px] md:text-[14px]"
                       style={{ color: "#f0ecff" }}
                     >
                       UI/UX · Frontend · Backend
                     </p>
                   </div>
+
                   <div className="mt-0.5 flex gap-1.5">
                     {["🎨", "⚛️", "🛠"].map((em, i) => (
                       <motion.span
@@ -1021,7 +1033,7 @@ export default function Home() {
                           delay: i * 0.45,
                           ease: "easeInOut",
                         }}
-                        className="text-base"
+                        className="text-sm sm:text-base"
                       >
                         {em}
                       </motion.span>
@@ -1029,7 +1041,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Skill bars */}
                 <div className="space-y-2.5">
                   {BARS.map((b) => (
                     <SkillBar key={b.label} {...b} />
@@ -1040,7 +1051,6 @@ export default function Home() {
           </motion.div>
         </section>
 
-        {/* ── Bottom stats bar ──────────────────────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -1071,7 +1081,6 @@ export default function Home() {
             </div>
           ))}
 
-          {/* Scroll hint */}
           <div
             className="ml-auto flex flex-col items-center gap-1.5"
             style={{ color: "rgba(200,190,230,0.3)" }}
@@ -1083,12 +1092,15 @@ export default function Home() {
               className="w-px rounded-full"
               style={{ height: 32, background: "rgba(200,180,255,0.35)" }}
               animate={{ scaleY: [0, 1, 0], opacity: [0, 1, 0] }}
-              transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+              transition={{
+                repeat: Infinity,
+                duration: 2.2,
+                ease: "easeInOut",
+              }}
             />
           </div>
         </motion.div>
 
-        {/* ── Remaining sections ────────────────────────────────────────── */}
         <AboutSection />
         <TechOrbitSection />
         <ServicesSection />
